@@ -39,6 +39,8 @@ export default function AdminDashboard() {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showDenyModal, setShowDenyModal] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [denialReason, setDenialReason] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -414,19 +416,21 @@ export default function AdminDashboard() {
                   <Label className="text-xs text-muted-foreground">Imagens Anexadas ({selectedRequest.images.length})</Label>
                   <div className="grid grid-cols-2 gap-2 mt-2">
                     {selectedRequest.images.map((imageUrl, index) => (
-                      <a
+                      <button
                         key={index}
-                        href={imageUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="block"
+                        type="button"
+                        onClick={() => {
+                          setSelectedImage(imageUrl);
+                          setShowImageModal(true);
+                        }}
+                        className="block w-full"
                       >
                         <img
                           src={imageUrl}
                           alt={`Imagem ${index + 1}`}
                           className="w-full h-20 object-cover rounded border-2 border-border hover:border-primary transition-colors cursor-pointer"
                         />
-                      </a>
+                      </button>
                     ))}
                   </div>
                 </div>
@@ -582,6 +586,25 @@ export default function AdminDashboard() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Image Viewer Modal */}
+      <Dialog open={showImageModal} onOpenChange={setShowImageModal}>
+        <DialogContent className="max-w-4xl p-0 bg-black/95 border-none">
+          <button
+            onClick={() => setShowImageModal(false)}
+            className="absolute top-4 right-4 z-50 bg-white/10 hover:bg-white/20 text-white rounded-full p-2 transition-colors"
+          >
+            <XCircle className="w-6 h-6" />
+          </button>
+          {selectedImage && (
+            <img
+              src={selectedImage}
+              alt="Visualização da imagem"
+              className="w-full h-auto max-h-[90vh] object-contain"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
