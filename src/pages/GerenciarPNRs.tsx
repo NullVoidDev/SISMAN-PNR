@@ -12,6 +12,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { usePNRs } from '@/contexts/PNRContext';
 import { PNR } from '@/types';
 import { useToast } from '@/hooks/use-toast';
+import { useDebounce } from '@/hooks/useDebounce';
 
 export default function GerenciarPNRs() {
     const navigate = useNavigate();
@@ -45,11 +46,14 @@ export default function GerenciarPNRs() {
         );
     }
 
+    // Aplicar debounce na busca para evitar filtros a cada tecla
+    const debouncedSearch = useDebounce(searchTerm, 300);
+
     const filteredPNRs = pnrs.filter(
         pnr =>
-            pnr.number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            pnr.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            pnr.block.toLowerCase().includes(searchTerm.toLowerCase())
+            pnr.number.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+            pnr.address.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+            pnr.block.toLowerCase().includes(debouncedSearch.toLowerCase())
     );
 
     const resetForm = () => {

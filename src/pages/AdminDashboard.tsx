@@ -18,6 +18,7 @@ import { MaintenanceRequest, SERVICE_CATEGORIES, ServiceCategory, RequestStatus,
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
+import { useDebounce } from '@/hooks/useDebounce';
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -30,6 +31,9 @@ export default function AdminDashboard() {
   const [filterUrgent, setFilterUrgent] = useState<'all' | 'urgent' | 'normal'>('all');
   const [showArchived, setShowArchived] = useState(false);
   const [searchPnr, setSearchPnr] = useState('');
+
+  // Aplicar debounce na busca para evitar filtros a cada tecla
+  const debouncedSearchPnr = useDebounce(searchPnr, 300);
 
   const [selectedRequest, setSelectedRequest] = useState<MaintenanceRequest | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
@@ -67,7 +71,7 @@ export default function AdminDashboard() {
     if (filterCategory !== 'all' && request.category !== filterCategory) return false;
     if (filterUrgent === 'urgent' && !request.isUrgent) return false;
     if (filterUrgent === 'normal' && request.isUrgent) return false;
-    if (searchPnr && !request.pnrNumber.toLowerCase().includes(searchPnr.toLowerCase())) return false;
+    if (debouncedSearchPnr && !request.pnrNumber.toLowerCase().includes(debouncedSearchPnr.toLowerCase())) return false;
     return true;
   });
 

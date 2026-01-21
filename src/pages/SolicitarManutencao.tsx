@@ -12,6 +12,7 @@ import { useRequests } from '@/contexts/RequestContext';
 import { supabase, DbPNR, uploadMultipleImages } from '@/lib/supabase';
 import { SERVICE_CATEGORIES, ServiceCategory, PNR } from '@/types';
 import { useToast } from '@/hooks/use-toast';
+import { useDebounce } from '@/hooks/useDebounce';
 
 export default function SolicitarManutencao() {
   const navigate = useNavigate();
@@ -74,10 +75,13 @@ export default function SolicitarManutencao() {
     fetchPnrs();
   }, [toast]);
 
+  // Aplicar debounce na busca para evitar filtros a cada tecla
+  const debouncedSearch = useDebounce(searchTerm, 300);
+
   const filteredPnrs = pnrs.filter(
     pnr =>
-      pnr.number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      pnr.address.toLowerCase().includes(searchTerm.toLowerCase())
+      pnr.number.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+      pnr.address.toLowerCase().includes(debouncedSearch.toLowerCase())
   );
 
   const handleSelectPnr = (pnr: PNR) => {

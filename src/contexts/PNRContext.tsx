@@ -109,17 +109,28 @@ export function PNRProvider({ children }: { children: ReactNode }) {
 
     const deletePNR = async (id: string): Promise<boolean> => {
         try {
-            const { error } = await supabase
+            console.log('Attempting to delete PNR with id:', id);
+
+            const { error, count } = await supabase
                 .from('pnrs')
-                .delete()
+                .delete({ count: 'exact' })
                 .eq('id', id);
+
+            console.log('Delete result - error:', error, 'count:', count);
 
             if (error) {
                 console.error('Error deleting PNR:', error);
                 return false;
             }
 
-            setPnrs(prev => prev.filter(p => p.id !== id));
+            // Verificar se realmente deletou algo
+            if (count === 0) {
+                console.error('No rows were deleted. Check RLS policies in Supabase.');
+                return false;
+            }
+
+            // Refresh direto do banco para garantir sincronização
+            await fetchPNRs();
             return true;
         } catch (err) {
             console.error('Error deleting PNR:', err);
